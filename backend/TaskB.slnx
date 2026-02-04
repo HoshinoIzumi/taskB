@@ -1,0 +1,5 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/TaskB.API/TaskB.API.csproj" />
+  </Folder>
+</Solution>
