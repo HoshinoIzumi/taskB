@@ -1,6 +1,6 @@
 import type { ITask } from "./types/tasks";
 
-const baseUrl = "http://localhost:3001";
+const baseUrl = "http://localhost:5115";
 
 const genId = () =>
   typeof crypto !== "undefined" && "randomUUID" in crypto

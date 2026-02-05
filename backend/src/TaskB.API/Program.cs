@@ -1,11 +1,25 @@
 using Microsoft.EntityFrameworkCore;
 using TaskB.API.Data;
+using TaskB.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddDbContext<TaskDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<ITaskService, TaskService>();
+
+builder.Services.AddControllers();
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.WithOrigins("http://localhost:3000", "http://localhost:3001") // Frontend URLs
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -18,9 +32,12 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.MapGet("/", () => "Welcome to TaskB API! Try /weatherforecast or /openapi/v1.json");
+app.UseCors();
+app.MapGet("/", () => "Welcome to TaskB API! Try /tasks or /openapi/v1.json");
 
 app.UseHttpsRedirection();
+
+app.MapControllers();
 
 var summaries = new[]
 {
