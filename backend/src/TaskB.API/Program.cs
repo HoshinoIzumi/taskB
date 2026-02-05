@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Scalar.AspNetCore;
 using TaskB.API.Data;
 using TaskB.API.Services;
 
