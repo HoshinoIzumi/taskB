@@ -1,0 +1,85 @@
+# =========================
+# General / OS
+# =========================
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+ehthumbs.db
+*.log
+*.tmp
+
+# =========================
+# IDEs / Generators
+# =========================
+# Visual Studio & VS Code
+.vs/
+.vscode/
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.swp
+*.swo
+
+# =========================
+# Backend - .NET /.NET Core
+# =========================
+## Build results
+[Bb]in/
+[Oo]bj/
+artifacts/
+
+## Generated files
+project.lock.json
+project.fragment.lock.json
+
+## Test results
+TestResults/
+
+## User-specific config
+appsettings.Development.json
+appsettings.Local.json
+
+# =========================
+# Frontend - Next.js / Node
+# =========================
+# Dependencies
+node_modules/
+.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# Next.js build output
+.next/
+out/
+build/
+
+# Testing
+coverage/
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env*
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
