@@ -16,8 +16,8 @@ public class TaskService(TaskDbContext context) : ITaskService
         {
             query = sort.ToLower() switch
             {
-                "createdat" => (order?.ToLower() == "desc") 
-                    ? query.OrderByDescending(t => t.CreatedAt) 
+                "createdat" => (order?.ToLower() == "desc")
+                    ? query.OrderByDescending(t => t.CreatedAt)
                     : query.OrderBy(t => t.CreatedAt),
                 "updatedat" => (order?.ToLower() == "desc")
                     ? query.OrderByDescending(t => t.UpdatedAt)
@@ -71,7 +71,7 @@ public class TaskService(TaskDbContext context) : ITaskService
         if (updateDto.Title != null) item.Title = updateDto.Title;
         if (updateDto.Description != null) item.Description = updateDto.Description;
         if (updateDto.Completed.HasValue) item.Completed = updateDto.Completed.Value;
-        
+
         item.UpdatedAt = DateTime.UtcNow;
 
         await context.SaveChangesAsync();
