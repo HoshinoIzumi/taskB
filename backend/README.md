@@ -1,6 +1,6 @@
-# Backend Ceration Guide
+# Backend Creation Guide
 
-## 1. First Web API with EF Core
+## Module 1 - Build Your First Web API with EF Core (Hands-On)
 
 This guide covers building a simple Web API using .NET 8 and Entity Framework Core (EF Core) connected to a SQL Server database.
 
@@ -98,7 +98,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 Generate the initial database schema and apply it:
 
 ```bash
-dotnet ef migrations add InitialCreate
+dotnet ef migrations add SeedTodoData
 dotnet ef database update
 ```
 
@@ -106,7 +106,33 @@ dotnet ef database update
 
 Create a `Controllers/TodoController.cs` to handle API requests using the DbContext.
 
-#### Troubleshooting & Reset
+---
+
+## Module 2 - Database Communication
+
+_Building the official Web API for the TodoApp._
+
+### Step 1: Seed Database with Mock Data
+
+- Implement data seeding in your `DbContext` or a separate `DataInitializer`.
+- Use `HasData()` in `OnModelCreating` to add initial Todo items.
+- Run migrations to apply seed data.
+
+### Step 2: Create Read Endpoint
+
+- Implement a GET endpoint to fetch todos from the database.
+- Verify that it returns the seeded mock data.
+
+### Step 3: Full CRUD Implementation
+
+- Implement the remaining endpoints:
+  - **Create**: POST `/api/todoitems`
+  - **Update**: PUT `/api/todoitems/{id}`
+  - **Delete**: DELETE `/api/todoitems/{id}`
+
+---
+
+## Troubleshooting & Reset
 
 If you encounter errors like `There is already an object named 'TodoItems' in the database`, you can reset your database:
 
