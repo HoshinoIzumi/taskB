@@ -12,9 +12,9 @@ public class AppDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<TodoItem>().HasData(
-            new TodoItem { Id = 1, Title = "Learn .NET 8", IsCompleted = true },
-            new TodoItem { Id = 2, Title = "Learn EF Core", IsCompleted = false },
-            new TodoItem { Id = 3, Title = "Build a Web API", IsCompleted = false }
+            new TodoItem { Id = Guid.NewGuid(), Title = "Learn .NET 8", Completed = true, CreatedAt = DateTime.UtcNow },
+            new TodoItem { Id = Guid.NewGuid(), Title = "Learn EF Core", Completed = false, CreatedAt = DateTime.UtcNow },
+            new TodoItem { Id = Guid.NewGuid(), Title = "Build a Web API", Completed = false, CreatedAt = DateTime.UtcNow }
         );
     }
 }
