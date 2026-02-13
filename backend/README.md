@@ -132,13 +132,61 @@ _Building the official Web API for the TodoApp._
 
 ---
 
+## Module 3 - Frontend Communication
+
+Connect your Next.js frontend to your .NET Web API.
+
+### Step 1: Configure CORS in the Backend
+
+CORS (Cross-Origin Resource Sharing) is a security feature that restricts web pages from making requests to a different domain than the one that served the web page.
+
+In `Program.cs`, add the following to allow requests from your frontend:
+
+```csharp
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend",
+        builder => builder.WithOrigins("http://localhost:3000")
+                          .AllowAnyMethod()
+                          .AllowAnyHeader());
+});
+
+// ... middle of file ...
+
+app.UseCors("AllowFrontend");
+```
+
+### Step 2: Connect Next.js using Fetch
+
+Update your frontend API configuration (e.g., `api.ts`) to point to the .NET backend URL (usually `http://localhost:5133/api`).
+
+```typescript
+const baseUrl = "http://localhost:5133/api";
+
+export const getAllTodos = async () => {
+  const res = await fetch(`${baseUrl}/Todo`, { cache: "no-store" });
+  if (!res.ok) throw new Error("GET /Todo failed");
+  return res.json();
+};
+```
+
+### Step 3: Handle Data Mapping
+
+Ensure your frontend interfaces match the backend models. If your backend uses `Id` (Guid) and `Completed` (bool), map them accordingly in your frontend components.
+
+---
+
 ## Troubleshooting & Reset
 
-If you encounter errors like `There is already an object named 'TodoItems' in the database`, you can reset your database:
+If you encounter errors like `There is already an object named 'TodoItems' in the database`, or if you change your model schema, you can reset your database:
 
 ```bash
 # ⚠️ This will DELETE the entire database and all data
 dotnet ef database drop --force
+
+# Remove and recreate migrations if schema changed significantly
+rm -rf Migrations
+dotnet ef migrations add InitialCreate
 
 # Apply migrations again to recreate the schema
 dotnet ef database update

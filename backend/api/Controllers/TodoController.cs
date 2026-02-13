@@ -25,7 +25,7 @@ public class TodoController : ControllerBase
 
     // GET: api/Todo/5
     [HttpGet("{id}")]
-    public async Task<ActionResult<TodoItem>> GetTodo(int id)
+    public async Task<ActionResult<TodoItem>> GetTodo(Guid id)
     {
         var todoItem = await _context.TodoItems.FindAsync(id);
 
@@ -49,13 +49,14 @@ public class TodoController : ControllerBase
 
     // PUT: api/Todo/5
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateTodo(int id, TodoItem todoItem)
+    public async Task<IActionResult> UpdateTodo(Guid id, TodoItem todoItem)
     {
         if (id != todoItem.Id)
         {
             return BadRequest();
         }
 
+        todoItem.UpdatedAt = DateTime.UtcNow;
         _context.Entry(todoItem).State = EntityState.Modified;
 
         try
@@ -79,7 +80,7 @@ public class TodoController : ControllerBase
 
     // DELETE: api/Todo/5
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteTodo(int id)
+    public async Task<IActionResult> DeleteTodo(Guid id)
     {
         var todoItem = await _context.TodoItems.FindAsync(id);
         if (todoItem == null)
@@ -93,7 +94,7 @@ public class TodoController : ControllerBase
         return NoContent();
     }
 
-    private bool TodoExists(int id)
+    private bool TodoExists(Guid id)
     {
         return _context.TodoItems.Any(e => e.Id == id);
     }
