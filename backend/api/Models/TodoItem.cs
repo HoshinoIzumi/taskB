@@ -9,5 +9,6 @@ public class TodoItem
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
 
+    public Guid CategoryId { get; set; }
     public Category Category { get; set; } = null!;
 }
