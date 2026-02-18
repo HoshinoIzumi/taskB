@@ -1,3 +1,10 @@
+export interface ICategory {
+  id: string;
+  name: string;
+  description?: string;
+  color: string;
+}
+
 export interface ITask {
   id: string;
   title: string;
@@ -5,4 +12,6 @@ export interface ITask {
   completed: boolean;
   createdAt: string;
   updatedAt?: string;
+  categoryId: string;
+  category: ICategory;
 }
