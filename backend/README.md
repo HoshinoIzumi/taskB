@@ -176,6 +176,56 @@ Ensure your frontend interfaces match the backend models. If your backend uses `
 
 ---
 
+## Module 4 - Domain Relation
+
+Learn how to model a one-to-many relationship using Entity Framework Core.
+
+### Step 1: Add Category Model
+
+Create a new `Category.cs` file in the `Models` folder:
+
+- **Name**: The category title (e.g., "Work", "Personal").
+- **Description**: A brief note about the category.
+- **Color**: A hex code or color name for visual identification.
+
+### Step 2: Establish One-to-Many Relationship
+
+- Update the `TodoItem` model to include a `CategoryId` (Foreign Key) and a `Category` navigation property.
+- Update the `Category` model to include a collection of `TodoItems`.
+
+### Step 3: Seed Categories and Assign to Todos
+
+- Add `DbSet<Category>` to `AppDbContext.cs`.
+- Use `OnModelCreating` to seed initial categories.
+- Update your existing seeded `TodoItems` to assign them to specific `CategoryId`s.
+
+### Step 4: Run Migrations and Submit PR
+
+Apply the schema changes to your database:
+
+```bash
+dotnet ef migrations add AddCategoryToTodo
+dotnet ef database update
+```
+
+> **Action**: Submit a PR and ask the Tech Lead for review before proceeding to API and Frontend changes.
+
+### Step 5: Update API Endpoint
+
+Modify the GET endpoint in `TodoController` to include category data using `.Include(t => t.Category)`.
+
+### Step 6: Frontend Integration
+
+Update your frontend todo list table to include a **Category** column:
+
+- Show the category name.
+- Use the category's `Color` property to style the tag.
+- Handle cases where a todo has "No category".
+
+> **Action**: Submit a PR and ask the Tech Lead for review.
+
+---
+
 ## Troubleshooting & Reset
 
 If you encounter errors like `There is already an object named 'TodoItems' in the database`, or if you change your model schema, you can reset your database:
