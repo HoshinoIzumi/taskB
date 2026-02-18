@@ -8,4 +8,6 @@ public class TodoItem
     public bool Completed { get; set; } // Renamed from IsCompleted to match frontend
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
+
+    public Category Category { get; set; } = null!;
 }
