@@ -20,7 +20,7 @@ public class TodoController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<TodoItem>>> GetTodos()
     {
-        return await _context.TodoItems.ToListAsync();
+        return await _context.TodoItems.Include(t => t.Category).ToListAsync();
     }
 
     // GET: api/Todo/5

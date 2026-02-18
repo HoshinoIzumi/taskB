@@ -38,6 +38,18 @@ const Task: React.FC<TaskProps> = ({ task, onUpdated, onDeleted }) => {
       <tr>
         <td>{task.title}</td>
         <td className="break-words">{task.description}</td>
+        <td>
+          {task.category ? (
+            <div 
+              className="badge text-white border-none" 
+              style={{ backgroundColor: task.category.color }}
+            >
+              {task.category.name}
+            </div>
+          ) : (
+            <span className="text-gray-400 italic">No category</span>
+          )}
+        </td>
         <td>{task.completed ? "Yes" : "No"}</td>
         <td>
           <time dateTime={task.createdAt}>{formatDateUTC(task.createdAt)}</time>
