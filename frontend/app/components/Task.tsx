@@ -90,6 +90,7 @@ const Task: React.FC<TaskProps> = ({ task, onUpdated, onDeleted }) => {
             title: task.title,
             description: task.description,
             completed: task.completed,
+            categoryId: task.categoryId,
           }}
           // ✅ 直接用 mutation 的 isPending 作为提交 loading
           submitting={updateMutation.isPending}

@@ -2,7 +2,9 @@
 import { useEffect, useState } from "react";
 import type { ITask } from "@/types/tasks";
 
-type Values = Pick<ITask, "title" | "description" | "completed">;
+import { useCategories } from "@/lib/queries/useTodos";
+
+type Values = Pick<ITask, "title" | "description" | "completed" | "categoryId">;
 
 interface TaskFormProps {
   mode?: "create" | "update";
@@ -19,15 +21,17 @@ export default function TaskForm({
 }: TaskFormProps) {
   const [title, setTitle] = useState(initial.title ?? "");
   const [description, setDescription] = useState(initial.description ?? "");
-  const [completed, setCompleted] = useState<boolean>(
-    initial.completed ?? false,
-  );
+  const [completed, setCompleted] = useState<boolean>(initial.completed ?? false);
+  const [categoryId, setCategoryId] = useState(initial.categoryId ?? "");
+
+  const { data: categories } = useCategories();
 
   useEffect(() => {
     setTitle(initial.title ?? "");
     setDescription(initial.description ?? "");
     setCompleted(initial.completed ?? false);
-  }, [initial.title, initial.description, initial.completed]);
+    setCategoryId(initial.categoryId ?? "");
+  }, [initial.title, initial.description, initial.completed, initial.categoryId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,6 +41,7 @@ export default function TaskForm({
       title: t,
       description: description.trim() || undefined,
       completed,
+      categoryId,
     });
   };
 
@@ -61,6 +66,26 @@ export default function TaskForm({
         placeholder="Task Description"
         className="textarea textarea-bordered w-full mb-3"
       />
+
+      <div className="form-control w-full mb-3">
+        <label className="label">
+          <span className="label-text">Category</span>
+        </label>
+        <select
+          className="select select-bordered w-full"
+          value={categoryId}
+          onChange={(e) => setCategoryId(e.target.value)}
+        >
+          <option value="" disabled>
+            Select Category
+          </option>
+          {categories?.map((cat) => (
+            <option key={cat.id} value={cat.id}>
+              {cat.name}
+            </option>
+          ))}
+        </select>
+      </div>
 
       {mode === "update" && (
         <label className="label cursor-pointer justify-start gap-2 mb-3">

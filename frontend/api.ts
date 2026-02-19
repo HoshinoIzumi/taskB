@@ -1,4 +1,4 @@
-import type { ITask } from "./types/tasks";
+import type { ITask, ICategory } from "./types/tasks";
 
 const baseUrl = "http://localhost:5133/api";
 
@@ -10,14 +10,24 @@ export const getAllTodos = async (): Promise<ITask[]> => {
   return res.json();
 };
 
+export const getCategories = async (): Promise<ICategory[]> => {
+  const res = await fetch(`${baseUrl}/Category`, {
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error(`GET /Category failed: ${res.status}`);
+  return res.json();
+};
+
 export const addNewTodo = async (
   title: string,
+  categoryId: string,
   description?: string,
 ): Promise<ITask> => {
   const newTask = {
     title,
     description: description?.trim() || null,
     completed: false,
+    categoryId,
   };
   const res = await fetch(`${baseUrl}/Todo`, {
     method: "POST",

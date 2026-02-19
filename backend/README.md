@@ -126,9 +126,9 @@ _Building the official Web API for the TodoApp._
 ### Step 3: Full CRUD Implementation
 
 - Implement the remaining endpoints:
-  - **Create**: POST `/api/todoitems`
-  - **Update**: PUT `/api/todoitems/{id}`
-  - **Delete**: DELETE `/api/todoitems/{id}`
+  - **Create**: POST `/api/todo`
+  - **Update**: PUT `/api/todo/{id}`
+  - **Delete**: DELETE `/api/todo/{id}`
 
 ---
 
@@ -208,8 +208,6 @@ dotnet ef migrations add AddCategoryToTodo
 dotnet ef database update
 ```
 
-> **Action**: Submit a PR and ask the Tech Lead for review before proceeding to API and Frontend changes.
-
 ### Step 5: Update API Endpoint
 
 Modify the GET endpoint in `TodoController` to include category data using `.Include(t => t.Category)`.
@@ -222,7 +220,168 @@ Update your frontend todo list table to include a **Category** column:
 - Use the category's `Color` property to style the tag.
 - Handle cases where a todo has "No category".
 
-> **Action**: Submit a PR and ask the Tech Lead for review.
+---
+
+## Module 5 - CQRS
+
+In this module, you will refactor the Todo App you built in earlier modules to adopt the CQRS (Command Query Responsibility Segregation) pattern.
+
+### Why CQRS?
+
+CQRS separates commands (write operations) from queries (read operations).
+
+Benefits include:
+
+- 🚀 **Performance and scalability** – read and write models can be optimized and scaled independently.
+- 🧩 **Clarity and maintainability** – code is easier to understand and evolve since responsibilities are not mixed.
+- 🔒 **Security** – commands and queries can enforce different validation and access rules.
+
+### How Our Project Uses CQRS
+
+In this Todo App project, we are applying CQRS by:
+
+- Using **Command Handlers** for all write operations (add, update, delete, mark complete).
+- Using **Query Handlers** for all read operations (fetch todos, get details, filter/search).
+- Structuring the codebase into clear modules (`commands/`, `queries/`) for better organization.
+
+This approach sets up a strong foundation for future scalability and real-world practices.
+
+### Recommended Code Structure
+
+To keep the project organized, we recommend using a "Feature-based" or "Vertical Slice" structure:
+
+```text
+Api/
+├── Features/
+│   └── Todos/
+│       ├── Commands/
+│       │   ├── CreateTodo.cs
+│       │   ├── UpdateTodo.cs
+│       │   └── DeleteTodo.cs
+│       └── Queries/
+│           ├── GetTodos.cs
+│           └── GetTodoById.cs
+```
+
+### Example: Create Todo Command
+
+In CQRS, we often group the Request (DTO), the Command, and the Handler in a single file for better discoverability.
+
+**File**: `Features/Todos/Commands/CreateTodo.cs`
+
+```csharp
+using Api.Data;
+using Api.Models;
+using System.ComponentModel.DataAnnotations;
+
+namespace Api.Features.Todos.Commands;
+
+public record CreateTodoRequest(
+    [Required] string Title,
+    string? Description,
+    Guid CategoryId
+);
+
+public class CreateTodoHandler
+{
+    private readonly AppDbContext _context;
+    private readonly ILogger<CreateTodoHandler> _logger;
+
+    public CreateTodoHandler(AppDbContext context, ILogger<CreateTodoHandler> logger)
+    {
+        _context = context;
+        _logger = logger;
+    }
+
+    public async Task<TodoItem> Handle(CreateTodoRequest request, CancellationToken ct)
+    {
+        _logger.LogInformation("Creating a new todo: {Title}", request.Title);
+
+        var todo = new TodoItem
+        {
+            Id = Guid.NewGuid(),
+            Title = request.Title,
+            Description = request.Description,
+            CategoryId = request.CategoryId,
+            Completed = false,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        _context.TodoItems.Add(todo);
+        await _context.SaveChangesAsync(ct);
+
+        _logger.LogInformation("Successfully created todo {Id}", todo.Id);
+        return todo;
+    }
+}
+```
+
+### Dependency Injection
+
+Instead of bloating `Program.cs`, create a `DependencyInjection.cs` file in the root of your project to register all your handlers.
+
+**File**: `DependencyInjection.cs`
+
+```csharp
+using Api.Features.Todos.Commands;
+using Api.Features.Todos.Queries;
+
+namespace Api;
+
+public static class DependencyInjection
+{
+    public static IServiceCollection AddHandlers(this IServiceCollection services)
+    {
+        // Commands
+        services.AddScoped<CreateTodoHandler>();
+        services.AddScoped<UpdateTodoHandler>();
+        services.AddScoped<DeleteTodoHandler>();
+
+        // Queries
+        services.AddScoped<GetTodosHandler>();
+        services.AddScoped<GetTodoByIdHandler>();
+
+        return services;
+    }
+}
+```
+
+Then call it in `Program.cs`: `builder.Services.AddHandlers();`
+
+### Hands On
+
+Refactor your existing Todo App following these steps:
+
+1. **Move write logic into commands**: Extract creating, updating, and deleting logic into dedicated command handlers.
+2. **Move read logic into queries**: Extract fetching and filtering logic into dedicated query handlers.
+3. **Verify your app**: Use Postman or the frontend to ensure all operations still work as expected.
+
+### CQRS Migration Guide
+
+Watch - https://www.youtube.com/watch?v=pQTHwYMh6CM
+
+🔧 Before (prep work)
+
+- Test current endpoint is still working
+- Save a screenshot of the current data return (for comparison after migration)
+
+⏳ In Progress (coding standards)
+
+- Start migrating service methods to CQRS
+  Put DTO payload + Command + Handler in one file
+  You can use AI to help: paste an existing migrated method as reference
+
+- Add CancellationToken from controller → handler → EF Core calls
+- Inject ILogger<THandler> and log at start, key decisions, and success/failure
+- Add basic validation with DataAnnotations (e.g., [Required])
+- Add try/catch if special handling is required
+- Register all new handlers in DependencyInjection.cs
+
+✅ After (wrap-up)
+
+- Test all migrated endpoints
+- Test also from frontend (connect to local backend or mobile app)
+- Remove old service methods, dependencies, and DTOs
 
 ---
 

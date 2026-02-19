@@ -7,5 +7,6 @@ public class Category
     public string? Description { get; set; }
     public string Color { get; set; } = string.Empty;
 
+    [System.Text.Json.Serialization.JsonIgnore]
     public ICollection<TodoItem> TodoItems { get; set; } = new List<TodoItem>();
 }

@@ -7,7 +7,7 @@ import { useState } from "react";
 import type { ITask } from "@/types/tasks";
 
 // ✅ 新：使用 TanStack Query 封装的 hooks
-import { useAddTask } from "@/lib/queries/useTodos";
+import { useAddTask, useCategories } from "@/lib/queries/useTodos";
 
 interface AddTaskProps {
   onAdded?: (task: ITask) => void;
@@ -18,8 +18,10 @@ const AddTask: React.FC<AddTaskProps> = ({ onAdded }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [newTaskValue, setNewTaskValue] = useState("");
   const [description, setDescription] = useState("");
+  const [categoryId, setCategoryId] = useState("");
 
-  const addMutation = useAddTask(); // 提供 mutate、isPending、error 等
+  const addMutation = useAddTask();
+  const { data: categories } = useCategories();
 
   const handleSubmitNewTodo = (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,12 +29,13 @@ const AddTask: React.FC<AddTaskProps> = ({ onAdded }) => {
     if (!title) return;
 
     addMutation.mutate(
-      { title, description },
+      { title, description, categoryId },
       {
         onSuccess: (saved) => {
           onAdded?.(saved);           
           setNewTaskValue("");        
           setDescription("");
+          setCategoryId("");
           setModalOpen(false);
           router.refresh();
         },
@@ -72,6 +75,21 @@ const AddTask: React.FC<AddTaskProps> = ({ onAdded }) => {
             placeholder="Task Description"
             className="textarea textarea-bordered w-full mb-4"
           />
+
+          <select
+            className="select select-bordered w-full mb-4"
+            value={categoryId}
+            onChange={(e) => setCategoryId(e.target.value)}
+          >
+            <option value="" disabled>
+              Select Category
+            </option>
+            {categories?.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
 
           <button
             type="submit"

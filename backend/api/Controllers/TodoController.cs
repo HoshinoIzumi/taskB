@@ -1,7 +1,7 @@
-using Api.Data;
+using Api.Features.Todos.Commands;
+using Api.Features.Todos.Queries;
 using Api.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Api.Controllers;
 
@@ -9,70 +9,70 @@ namespace Api.Controllers;
 [ApiController]
 public class TodoController : ControllerBase
 {
-    private readonly AppDbContext _context;
+    private readonly GetTodosHandler _getTodosHandler;
+    private readonly GetTodoByIdHandler _getTodoByIdHandler;
+    private readonly CreateTodoHandler _createTodoHandler;
+    private readonly UpdateTodoHandler _updateTodoHandler;
+    private readonly DeleteTodoHandler _deleteTodoHandler;
 
-    public TodoController(AppDbContext context)
+    public TodoController(
+        GetTodosHandler getTodosHandler,
+        GetTodoByIdHandler getTodoByIdHandler,
+        CreateTodoHandler createTodoHandler,
+        UpdateTodoHandler updateTodoHandler,
+        DeleteTodoHandler deleteTodoHandler)
     {
-        _context = context;
+        _getTodosHandler = getTodosHandler;
+        _getTodoByIdHandler = getTodoByIdHandler;
+        _createTodoHandler = createTodoHandler;
+        _updateTodoHandler = updateTodoHandler;
+        _deleteTodoHandler = deleteTodoHandler;
     }
 
     // GET: api/Todo
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<TodoItem>>> GetTodos()
+    public async Task<ActionResult<IEnumerable<TodoItem>>> GetTodos(CancellationToken ct)
     {
-        return await _context.TodoItems.Include(t => t.Category).ToListAsync();
+        var todos = await _getTodosHandler.Handle(ct);
+        return Ok(todos);
     }
 
     // GET: api/Todo/5
     [HttpGet("{id}")]
-    public async Task<ActionResult<TodoItem>> GetTodo(Guid id)
+    public async Task<ActionResult<TodoItem>> GetTodo(Guid id, CancellationToken ct)
     {
-        var todoItem = await _context.TodoItems.FindAsync(id);
+        var todo = await _getTodoByIdHandler.Handle(id, ct);
 
-        if (todoItem == null)
+        if (todo == null)
         {
             return NotFound();
         }
 
-        return todoItem;
+        return Ok(todo);
     }
 
     // POST: api/Todo
     [HttpPost]
-    public async Task<ActionResult<TodoItem>> CreateTodo(TodoItem todoItem)
+    public async Task<ActionResult<TodoItem>> CreateTodo([FromBody] CreateTodoRequest request, CancellationToken ct)
     {
-        _context.TodoItems.Add(todoItem);
-        await _context.SaveChangesAsync();
-
-        return CreatedAtAction(nameof(GetTodo), new { id = todoItem.Id }, todoItem);
+        var todo = await _createTodoHandler.Handle(request, ct);
+        return CreatedAtAction(nameof(GetTodo), new { id = todo.Id }, todo);
     }
 
     // PUT: api/Todo/5
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateTodo(Guid id, TodoItem todoItem)
+    public async Task<IActionResult> UpdateTodo(Guid id, [FromBody] UpdateTodoRequest request, CancellationToken ct)
     {
-        if (id != todoItem.Id)
+        if (id != request.Id)
         {
-            return BadRequest();
+            return BadRequest("ID mismatch");
         }
 
-        todoItem.UpdatedAt = DateTime.UtcNow;
-        _context.Entry(todoItem).State = EntityState.Modified;
+        var result = await _updateTodoHandler.Handle(request, ct);
 
-        try
+        if (!result)
         {
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!TodoExists(id))
-            {
-                return NotFound();
-            }
-            else
-            {
-                throw;
-            }
+            return NotFound();
         }
 
         return NoContent();
@@ -80,22 +80,15 @@ public class TodoController : ControllerBase
 
     // DELETE: api/Todo/5
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteTodo(Guid id)
+    public async Task<IActionResult> DeleteTodo(Guid id, CancellationToken ct)
     {
-        var todoItem = await _context.TodoItems.FindAsync(id);
-        if (todoItem == null)
+        var result = await _deleteTodoHandler.Handle(id, ct);
+
+        if (!result)
         {
             return NotFound();
         }
 
-        _context.TodoItems.Remove(todoItem);
-        await _context.SaveChangesAsync();
-
         return NoContent();
-    }
-
-    private bool TodoExists(Guid id)
-    {
-        return _context.TodoItems.Any(e => e.Id == id);
     }
 }

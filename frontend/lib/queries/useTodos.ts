@@ -1,24 +1,31 @@
 // lib/queries/useTodos.ts
 "use client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getAllTodos, addNewTodo, updateTodo, deleteTodo } from "@/api"; 
-import type { ITask } from "@/types/tasks";
+import { getAllTodos, getCategories, addNewTodo, updateTodo, deleteTodo } from "@/api"; 
+import type { ITask, ICategory } from "@/types/tasks";
 
 const key = ["tasks"]; 
+const categoriesKey = ["categories"];
 
 export function useTasks() {
   return useQuery<ITask[]>({
     queryKey: key,
     queryFn: getAllTodos,
-    // 可按需：staleTime: 10_000, gcTime: 5 * 60_000
+  });
+}
+
+export function useCategories() {
+  return useQuery<ICategory[]>({
+    queryKey: categoriesKey,
+    queryFn: getCategories,
   });
 }
 
 export function useAddTask() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (vars: { title: string; description?: string }) =>
-      addNewTodo(vars.title, vars.description),
+    mutationFn: (vars: { title: string; categoryId: string; description?: string }) =>
+      addNewTodo(vars.title, vars.categoryId, vars.description),
     onSuccess: () => qc.invalidateQueries({ queryKey: key }), 
   });
 }
